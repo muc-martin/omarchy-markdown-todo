@@ -24,11 +24,19 @@ opened, copied or modified.
 - Export uses a fixed file list without reading live task data. Tests and
   manifest validation also pass after isolated archive extraction.
 - The published package was cloned, compared byte for byte and tested separately.
+- An isolated Quickshell host rendered the current widget using synthetic data.
+  Short lists expanded P0/P1/P2; a long list collapsed P2/P1 and kept P0 open.
+  Completed tasks were hidden. Light, dark and collapsed screenshots capture only
+  the panel via Qt, without desktop content.
+- All five public commits and their 32 distinct text blobs were reviewed for
+  private paths, task data, credential patterns and email addresses. No such data
+  was found. Commit email addresses are GitHub noreply addresses. Historical
+  versions retain the earlier first-name label; current package files do not.
 
 ## Pending UI checks
 
-The new package has not been loaded into the production shell. Its full runtime
-behavior and Marketplace validation remain unverified. Before submission, use
+The new package has not been loaded into the production shell. Isolated rendering is verified; the interaction checks below and Marketplace
+validation are separate checks. Before submission, use
 a separate Omarchy test session:
 
 1. Copy `examples/demo.md` to a new temporary directory. Configure the widget

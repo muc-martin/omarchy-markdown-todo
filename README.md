@@ -4,6 +4,8 @@ A compact bar panel with P0, P1 and P2 priorities. Markdown is the data source.
 Completed tasks stay in the file and disappear from the panel. Titles occupy
 one line; descriptions appear on hover.
 
+![todo.md with synthetic example tasks](preview.png)
+
 When opened, the panel expands as many groups as fit within one third of the
 screen height, up to 460 style units. It collapses P2 first, then P1. P0 stays
 open and scrolls when needed. P1 and P2 can be toggled manually. Colors, fonts,

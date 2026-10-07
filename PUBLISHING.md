@@ -23,7 +23,8 @@ widget, IPC targets and documentation.
 
 Remaining steps:
 
-1. Complete the isolated UI checks in `VERIFICATION.md`.
+1. Review the isolated rendering results and remaining interaction checks in
+   `VERIFICATION.md`.
 2. Check source, license rights, dependencies and all five submission statements.
 3. Fill the repository URL in the submission draft using this repository's URL.
 4. Show the completed title and body to the owner and obtain separate approval.
@@ -32,5 +33,4 @@ Remaining steps:
 The current Marketplace process checks an exact commit and requires maintainer
 approval (`approved-and-verified`). Local tests do not replace that review.
 Later listing updates use the official verification form and the full target
-commit SHA. An optional `preview.png` must show only synthetic tasks. No preview
-is included yet.
+commit SHA. An optional `preview.png` must show only synthetic tasks. The root preview and screenshots use only synthetic tasks.
