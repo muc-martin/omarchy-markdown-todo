@@ -1,12 +1,13 @@
-# Lokaler Entwurf – nicht einreichen
+# Submission draft — do not submit
 
-Titel: `[Plugin]: To-do`
+Title: `[Plugin]: To-do`
 
-Vor einer Einreichung jede Aussage vom Eigentümer bestätigen lassen. Die offenen Kästchen sind keine Bestätigung.
+Obtain owner confirmation for every statement before submission.
+Unchecked boxes do not represent confirmation.
 
 ### Repository URL
 
-https://github.com/muc-martin/omarchy-markdown-todo
+REPOSITORY_URL_PENDING
 
 ### Category
 

@@ -1,18 +1,18 @@
-# To-do (synthetisches Beispiel)
+# To-do (synthetic example)
 
 ## P0
 
-- [ ] Testbericht prüfen
-  description: Die Ergebnisse des Beispieltests lesen und offene Fehler erfassen.
+- [ ] Review the test report
+  description: Read the example test results and record any remaining failures.
 
 ## P1
 
-- [ ] Handbuch ergänzen
-  description: Einen kurzen Abschnitt zur Editorwahl mit einem Beispiel schreiben.
-- [x] Beispiel vorbereiten
-  description: Diese erledigte Aufgabe bleibt in Markdown und wird im Panel ausgeblendet.
+- [ ] Update the guide
+  description: Add a short section on editor selection with one example.
+- [x] Prepare the example
+  description: This completed task stays in Markdown and is hidden in the panel.
 
 ## P2
 
-- [ ] Tastaturwege prüfen
-  description: Öffnen, Escape und den Wechsel zum nächsten Panel ausprobieren.
+- [ ] Check keyboard navigation
+  description: Test opening, Escape and switching to the next panel.

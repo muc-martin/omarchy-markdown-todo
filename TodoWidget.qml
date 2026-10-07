@@ -7,8 +7,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "martin.todo"
-  ipcTarget: "martin.todo"
+  moduleName: "markdown.todo"
+  ipcTarget: "markdown.todo"
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
@@ -62,7 +62,7 @@ Panel {
   }
 
   IpcHandler {
-    target: "martin.todo.editor"
+    target: "markdown.todo.editor"
     function open(): void { root.editTasks() }
   }
 

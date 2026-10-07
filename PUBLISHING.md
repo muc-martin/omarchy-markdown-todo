@@ -1,41 +1,36 @@
-# Veröffentlichung vorbereiten
+# Publication preparation
 
-Stand: 7. Oktober 2026. Öffentliches Repository:
-https://github.com/muc-martin/omarchy-markdown-todo
-Noch keine Store-Einreichung.
+Status: October 7, 2026. The public repository contains the plugin package.
+No Marketplace submission has been made.
 
-Die offiziellen Seiten verweisen auf Git-Verteilung und den Marketplace:
+Official references:
 
-- [Omarchy-Handbuch](https://omarchy.org/manual/shell-plugins/)
-- [Publishing Guide](https://plugins.omarchy.org/publish.html)
-- [Submission Guide](https://github.com/omacom/omarchy-plugin-marketplace/blob/main/SUBMISSION.md)
-- [Einreichungsformular](https://github.com/omacom/omarchy-plugin-marketplace/issues/new?template=submit-plugin.yml)
+- [Omarchy manual](https://omarchy.org/manual/shell-plugins/)
+- [Publishing guide](https://plugins.omarchy.org/publish.html)
+- [Submission guide](https://github.com/omacom/omarchy-plugin-marketplace/blob/main/SUBMISSION.md)
+- [Submission form](https://github.com/omacom/omarchy-plugin-marketplace/issues/new?template=submit-plugin.yml)
 
-Das Repository enthält genau dieses Plugin mit Manifest, README und
-Lizenz in der Wurzel. Nicht das persönliche Setup-Repository veröffentlichen
-und nicht dessen Git-Historie übernehmen. Der Export enthält nur explizit
-freigegebene Paketdateien. Es gibt keine Installations-Hooks.
+The repository contains one plugin, with its manifest, README and license at
+the root. Its new Git history contains only the reviewed package files.
+Personal setup history and live tasks were not imported. There are no install
+hooks.
 
-Metadaten: Name `To-do`, aktuelle ID `martin.todo`, Kategorie
-`Productivity`, Tags `bar, quickshell`. Die ID ist im am 7. Oktober geladenen
-aktuellen Registry-JSON nicht enthalten. Auch zurückgezogene IDs können gesperrt
-sein; eine endgültige Reservierung bzw. Verfügbarkeit bestätigt erst der Store.
-Vor Veröffentlichung den Namensraum mit dem künftigen GitHub-Eigentümer prüfen.
-Eine Änderung der ID erfordert Änderungen in Manifest, Widget, IPC und Anleitung.
+Listing metadata: name `To-do`, plugin ID `markdown.todo`, category
+`Productivity`, tags `bar, quickshell`. ID availability must be checked before
+submission. Retired IDs can remain unavailable; the Marketplace makes the final
+decision. Changes to the ID require corresponding updates to the manifest,
+widget, IPC targets and documentation.
 
-Reihenfolge:
+Remaining steps:
 
-1. Isolierte UI-Prüfungen aus `VERIFICATION.md` abschließen.
-2. Erledigt: Eigentümer hat `muc-martin/omarchy-markdown-todo` öffentlich erstellt.
-3. Erledigt: Paketinhalt mit neuer Git-Historie übernommen; keine Setup-Historie.
-4. Erledigt: tatsächliche URL in README und Einreichungsentwurf ergänzt.
-5. Code, Lizenzrechte, Abhängigkeiten und die fünf Aussagen der Checkliste prüfen.
-6. Eigentümer sieht den fertigen Titel und Text und gibt die Einreichung separat frei.
-7. Danach das offizielle Formular verwenden. Fehler im bestehenden Antrag korrigieren.
+1. Complete the isolated UI checks in `VERIFICATION.md`.
+2. Check source, license rights, dependencies and all five submission statements.
+3. Fill the repository URL in the submission draft using this repository's URL.
+4. Show the completed title and body to the owner and obtain separate approval.
+5. Use the official form after approval. Correct feedback in the existing request.
 
-Der aktuelle Store-Prozess prüft einen konkreten Commit und verlangt eine
-Maintainer-Freigabe (`approved-and-verified`). Lokale Tests ersetzen diese Prüfung
-nicht. Für spätere Katalogupdates gilt das offizielle Verifizierungsformular mit
-der vollständigen Ziel-SHA. Ein optionales `preview.png` ist erlaubt; ein Screenshot
-muss ausschließlich synthetische Aufgaben zeigen. Diesem Paket liegt bewusst
-noch kein ungetesteter oder produktiver Screenshot bei.
+The current Marketplace process checks an exact commit and requires maintainer
+approval (`approved-and-verified`). Local tests do not replace that review.
+Later listing updates use the official verification form and the full target
+commit SHA. An optional `preview.png` must show only synthetic tasks. No preview
+is included yet.

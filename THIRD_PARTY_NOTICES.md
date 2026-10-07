@@ -1,22 +1,21 @@
-# Herkunft und Lizenz
+# Source and license notices
 
-Martin hat MIT am 7. Oktober 2026 für den eigenen To-do-Code gewählt.
-CLI, Tests, Beispiele und Agent-Skill stammen aus dem persönlichen Setup.
-Die Git-Historie beginnt für das Panel bei Commit `4ef6140`; spätere Änderungen
-passen Verhalten und Darstellung an. Ein vollständiger Nachweis jeder früheren
-Codeübernahme lässt sich aus der Historie allein nicht ableiten.
+The owner selected MIT for the original To-do code on October 7, 2026.
+The CLI, tests, examples and agent skill were developed for a personal setup.
+Later changes adjusted the panel's behavior and appearance. The available
+history alone does not establish the provenance of every earlier code pattern.
 
-Das Panel nutzt Omarchys Muster für Panel-Lebenszyklus, BarIconButton,
-KeyboardPanel, PanelKeyCatcher, Abschnitte und Theme-Werte. Der MIT-Hinweis von
-Omarchy bleibt vorsorglich im Paket erhalten. Die Komponenten selbst werden
-zur Laufzeit importiert und nicht mitgeliefert.
+The panel uses Omarchy patterns for the panel lifecycle, BarIconButton,
+KeyboardPanel, PanelKeyCatcher, sections and theme values. Omarchy's MIT notice
+is retained in the package. The components themselves are imported at runtime
+and are not bundled.
 
-Quellen, geprüft am 7. Oktober 2026:
+Sources reviewed on October 7, 2026:
 
 - https://github.com/omacom/omarchy/blob/quattro/LICENSE
 - https://github.com/omacom/omarchy/tree/quattro/shell/Ui
 - https://github.com/omacom/omarchy/tree/quattro/shell/plugins/panels/network
 
-Python 3, QtQuick und Quickshell bleiben externe Laufzeitabhängigkeiten.
-Das Paket enthält keine kopierten Bibliotheken, Fonts, Icons oder Bilddateien.
-Das Symbol ist ein Zeichen aus dem vom Omarchy-Theme bereitgestellten Font.
+Python 3, QtQuick and Quickshell remain external runtime dependencies. The
+package contains no copied libraries, fonts, icons or image files. The bar icon
+is a character rendered with the font supplied by the Omarchy theme.

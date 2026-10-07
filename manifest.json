@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "martin.todo",
+  "id": "markdown.todo",
   "name": "To-do",
-  "version": "1.1.0",
-  "author": "Martin",
+  "version": "1.1.1",
+  "author": "Markdown To-do contributors",
   "description": "A small Markdown-backed priority list",
   "kinds": [
     "bar-widget"
