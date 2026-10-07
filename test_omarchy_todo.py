@@ -86,9 +86,111 @@ class TodoMarkdownTests(unittest.TestCase):
 
 
 class TodoSafetyTests(unittest.TestCase):
-    def cli(self, path, *args):
+    def cli(self, path, *args, input=None):
         return subprocess.run([str(SCRIPT), "--file", str(path), *args],
-                              capture_output=True, text=True)
+                              input=input, capture_output=True, text=True)
+
+    def test_stdin_round_trip_normalizes_content_without_interpreting_it(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks with spaces.md"
+            path.write_text("# Existing\n\nKeep this note.\n\n## P1\n")
+            path.chmod(0o640)
+            payload = {"text": "  - Review ä; $(id)\n", "description": "First\n## P0\n- [ ] Injected"}
+            result = self.cli(path, "add", "P1", "--stdin", input=json.dumps(payload))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            rows = json.loads(self.cli(path, "list").stdout)
+            self.assertEqual(rows["P0"], [])
+            self.assertEqual(len(rows["P1"]), 1)
+            row = rows["P1"][0]
+            self.assertEqual(row["text"], "- Review ä; $(id)")
+            self.assertEqual(row["description"], "First ## P0 - [ ] Injected")
+            self.assertIn("Keep this note.", path.read_text())
+            self.assertEqual(path.stat().st_mode & 0o777, 0o640)
+            result = self.cli(path, "toggle", str(row["line"]), row["etag"], "--revision", row["revision"])
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(json.loads(self.cli(path, "list").stdout)["P1"][0]["done"])
+
+    def test_stdin_rejects_invalid_payload_without_echoing_or_changing_data(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks.md"
+            path.write_text("Keep existing data\n")
+            before = path.read_bytes()
+            marker = "Synthetic private marker"
+            invalid = ["", marker, "[]", "null",
+                       json.dumps({"text": marker}),
+                       json.dumps({"text": marker, "description": "Context", "extra": True}),
+                       json.dumps({"text": [marker], "description": "Context"}),
+                       json.dumps({"text": marker, "description": 42}),
+                       '{"text":"' + marker + '","text":"Other","description":"Context"}',
+                       '{"text":"' + marker + '","te\\u0078t":"Other","description":"Context"}',
+                       json.dumps({"text": marker, "description": "Context"}) + " {}",
+                       json.dumps({"text": "\ud800", "description": marker})]
+            for payload in invalid:
+                with self.subTest(payload=payload):
+                    result = self.cli(path, "add", "P0", "--stdin", input=payload)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertNotIn(marker, result.stdout + result.stderr)
+                    self.assertEqual(path.read_bytes(), before)
+
+    def test_stdin_rejects_non_utf8_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks.md"
+            result = subprocess.run([str(SCRIPT), "--file", str(path), "add", "P0", "--stdin"],
+                                    input=b'{"text":"\xff","description":"Context"}', capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(path.exists())
+            self.assertNotIn(b"\xff", result.stderr)
+
+    def test_stdin_keeps_required_description_and_title_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks.md"
+            for payload in [{"text": " ", "description": "Context"},
+                            {"text": "Task", "description": " \n"},
+                            {"text": "a" * 36, "description": "Context"}]:
+                result = self.cli(path, "add", "P0", "--stdin", input=json.dumps(payload))
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(path.exists())
+            result = self.cli(path, "add", "P0", "--stdin",
+                              input=json.dumps({"text": "a" * 35, "description": "Context"}))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    def test_stdin_cannot_mix_with_content_arguments(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks.md"
+            for args in [("Task", "--stdin"), ("--stdin", "--description", "Context"),
+                         ("Task", "--description", "Context", "--stdin")]:
+                result = self.cli(path, "add", "P0", *args, input="")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(path.exists())
+
+    @unittest.skipUnless(Path("/proc/self/cmdline").exists(), "Linux process arguments required")
+    def test_stdin_task_content_is_absent_from_running_process_arguments(self):
+        import fcntl
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "tasks.md"
+            payload = {"text": "Synthetic private title", "description": "Synthetic private description"}
+            with path.with_name(path.name + ".lock").open("w") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                child = subprocess.Popen([str(SCRIPT), "--file", str(path), "add", "P2", "--stdin"],
+                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE, text=True)
+                try:
+                    child.stdin.write(json.dumps(payload))
+                    child.stdin.close()
+                    child.stdin = None
+                    arguments = Path(f"/proc/{child.pid}/cmdline").read_bytes()
+                    self.assertIn(b"--stdin", arguments)
+                    for value in payload.values():
+                        self.assertNotIn(value.encode(), arguments)
+                finally:
+                    fcntl.flock(lock, fcntl.LOCK_UN)
+                    stdout, stderr = child.communicate(timeout=10)
+                self.assertEqual(child.returncode, 0, stderr)
+                self.assertEqual(stdout + stderr, "")
+                row = json.loads(self.cli(path, "list").stdout)["P2"][0]
+                self.assertEqual(row["text"], payload["text"])
+                self.assertEqual(row["description"], payload["description"])
 
     def test_description_and_short_title_required(self):
         with tempfile.TemporaryDirectory() as directory:

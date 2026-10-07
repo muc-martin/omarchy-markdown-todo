@@ -1,7 +1,9 @@
 # Publication preparation
 
-Status: October 7, 2026. The public repository contains the plugin package.
-No Marketplace submission has been made.
+Status: October 7, 2026. Initial submission:
+[#10403](https://github.com/omacom/omarchy-plugin-marketplace/issues/10403).
+The first commit passed automated checks. A maintainer requested stdin input
+for task content; version 1.1.3 adds it and updates CLI and agent instructions.
 
 Official references:
 
@@ -26,9 +28,9 @@ Remaining steps:
 1. Review the isolated rendering results and remaining interaction checks in
    `VERIFICATION.md`.
 2. Check source, license rights, dependencies and all five submission statements.
-3. Fill the repository URL in the submission draft using this repository's URL.
-4. Show the completed title and body to the owner and obtain separate approval.
-5. Use the official form after approval. Correct feedback in the existing request.
+3. Upload the reviewed correction, then update the existing submission with the
+   exact new commit to rerun validation. Keep the original category and tags.
+4. Wait for maintainer review of the current reports and corrected input path.
 
 The current Marketplace process checks an exact commit and requires maintainer
 approval (`approved-and-verified`). Local tests do not replace that review.

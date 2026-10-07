@@ -11,11 +11,17 @@ opened, copied or modified.
 
 ## Automated checks
 
-- 18 tests cover Markdown preservation, missing sections, descriptions, line
+- 24 tests cover Markdown preservation, missing sections, descriptions, line
   endings, required descriptions, short titles, stale revisions, CRLF toggles,
   rejected symlinks, file permissions, conflicting writes, twelve concurrent
   additions, editor arguments without shell execution, XDG/environment paths
-  and editor failures.
+  and editor failures. Stdin tests cover UTF-8 JSON, strict field types and keys,
+  duplicate keys, mixed input modes, malformed input without content in error
+  output, unchanged data on rejection, title limits and Markdown preservation.
+- The original argument-based add was reproduced with synthetic content visible
+  in `/proc/<pid>/cmdline`, even with a 0600 task file. The stdin regression test
+  supplies synthetic content to a running helper, checks that both fields are
+  absent from its actual process arguments, then verifies the saved task.
 - `omarchy plugin validate` accepts the package.
 - Qt 6 `qmlformat` parses the QML. `qmllint` uses a temporary import alias for
   the installed shell's `qs.*` modules. Warnings remain for dynamic bar and theme
@@ -61,3 +67,7 @@ CLI writers only. An editor can write between the final contents check and
 replacement; coordinate direct edits. Legacy toggles without `--revision` check
 only the task line. The UI and optional skill pass the whole-file revision.
 Runtime dependencies are not bundled.
+
+Legacy add arguments remain for compatibility and expose their content through
+process listings. README and bundled agent instructions use stdin; automation
+instructions also keep task content out of shell and Python runner arguments.

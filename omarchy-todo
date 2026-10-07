@@ -137,6 +137,38 @@ def insert_task(lines: list[str], priority: str, text: str, description: str = "
         lines.insert(insert_at + 1, f"  description: {description}\n")
 
 
+def read_add_input(args: argparse.Namespace) -> None:
+    if not args.stdin:
+        if args.text is None or args.description is None:
+            raise ValueError("Use --stdin, or provide a title and --description")
+        return
+    if args.text is not None or args.description is not None:
+        raise ValueError("--stdin cannot be combined with title or description arguments")
+
+    def unique_fields(pairs):
+        fields = {}
+        for key, value in pairs:
+            if key in fields:
+                raise ValueError("Duplicate fields in stdin JSON")
+            fields[key] = value
+        return fields
+
+    try:
+        content = json.loads(sys.stdin.buffer.read().decode("utf-8"), object_pairs_hook=unique_fields)
+    except (json.JSONDecodeError, UnicodeError) as exc:
+        raise ValueError("stdin must contain one UTF-8 JSON object") from exc
+    if (not isinstance(content, dict) or set(content) != {"text", "description"}
+            or not all(isinstance(value, str) for value in content.values())):
+        raise ValueError("stdin requires exactly the string fields text and description")
+    try:
+        for value in content.values():
+            value.encode("utf-8")
+    except UnicodeError as exc:
+        raise ValueError("stdin fields must contain valid Unicode text") from exc
+    args.text = content["text"]
+    args.description = content["description"]
+
+
 def mutate(path: Path, args: argparse.Namespace) -> None:
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     lock = path.with_name(path.name + ".lock")
@@ -182,8 +214,10 @@ def main() -> int:
     edit.add_argument("--editor", default="")
     add = sub.add_parser("add")
     add.add_argument("priority", choices=PRIORITIES)
-    add.add_argument("text")
-    add.add_argument("--description", required=True, help="Required context shown on hover")
+    add.add_argument("text", nargs="?", help="Legacy title argument; visible in process listings")
+    add.add_argument("--description", help="Legacy context argument; visible in process listings")
+    add.add_argument("--stdin", action="store_true",
+                     help="Read text and description as a JSON object from stdin")
     toggle = sub.add_parser("toggle")
     toggle.add_argument("line", type=int)
     toggle.add_argument("etag")
@@ -192,6 +226,8 @@ def main() -> int:
     args.file = args.file.expanduser().absolute()
 
     try:
+        if args.action == "add":
+            read_add_input(args)
         if args.action == "edit":
             command = args.editor or os.environ.get("OMARCHY_TODO_EDITOR", "") or os.environ.get("VISUAL", "") or os.environ.get("EDITOR", "")
             argv = shlex.split(command) if command else ["omawrite" if shutil.which("omawrite") else "xdg-open"]

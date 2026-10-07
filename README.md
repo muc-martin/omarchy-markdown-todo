@@ -73,12 +73,14 @@ settings reload automatically.
 
 ## CLI and agents
 
-Call the bundled helper directly:
+Call the bundled helper directly. In an interactive shell:
 
 ```sh
 TODO_PLUGIN="$HOME/.config/omarchy/plugins/todo.md"
 python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md list
-python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md add P1 "Update the guide" --description "Explain editor selection with an example."
+python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md add P1 --stdin <<'JSON'
+{"text":"Update the guide","description":"Explain editor selection with an example."}
+JSON
 python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md toggle LINE ETAG --revision REVISION
 ```
 
@@ -90,6 +92,18 @@ line. Agents should always pass `--revision`.
 New CLI titles have at most 35 characters and require a description. Multiline
 inputs are normalized to one line. Existing tasks without descriptions remain
 readable.
+
+`add --stdin` reads one UTF-8 JSON object with exactly two string fields:
+`text` and `description`. Invalid input is rejected without printing its content.
+The legacy title and `--description` arguments remain supported; their values
+are visible in process listings. Use stdin for private task content.
+
+Automations must send the JSON through the execution API's stdin channel.
+Putting a here-document, `printf` call or Python snippet containing task data
+inside `sh -c`, `bash -c` or `python -c` exposes it in the runner's arguments.
+If stdin streaming is unavailable, write a temporary JSON file with mode 0600
+through a file-writing API, redirect stdin from its path, then remove that file.
+Keep task content out of command arguments and environment variables.
 
 The optional agent skill is in `skills/omarchy-todo/SKILL.md`. Compare and back up
 any existing version before copying it to `~/.codex/skills/omarchy-todo/SKILL.md`.
