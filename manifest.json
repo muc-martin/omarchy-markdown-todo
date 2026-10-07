@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "martin.todo",
+  "name": "To-do",
+  "version": "1.1.0",
+  "author": "Martin",
+  "description": "A small Markdown-backed priority list",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "TodoWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "To-do",
+    "description": "P0, P1, and P2 tasks",
+    "category": "Productivity",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "file": "",
+      "editor": ""
+    },
+    "schema": [
+      {
+        "key": "file",
+        "type": "string",
+        "label": "Markdown file (absolute path)"
+      },
+      {
+        "key": "editor",
+        "type": "string",
+        "label": "Editor command (no shell)"
+      }
+    ]
+  },
+  "license": "MIT"
+}

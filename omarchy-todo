@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""Small, atomic Markdown task store for the Omarchy bar."""
+
+from __future__ import annotations
+
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+import tempfile
+import shlex
+import shutil
+import stat
+import subprocess
+
+
+PRIORITIES = ("P0", "P1", "P2")
+HEADING = re.compile(r"^## (P[012])\s*$")
+TASK = re.compile(r"^- \[([ xX])\] (.+)$")
+DESCRIPTION = re.compile(r"^  description: (.+)$")
+INITIAL = "# To-do\n\n## P0\n\n## P1\n\n## P2\n"
+
+
+def default_path() -> Path:
+    override = os.environ.get("OMARCHY_TODO_FILE")
+    if override:
+        return Path(override).expanduser()
+    data_home = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share"))
+    return data_home / "omarchy" / "todo.md"
+
+
+def read_lines(path: Path) -> list[str]:
+    try:
+        return path.read_bytes().decode("utf-8").splitlines(keepends=True)
+    except FileNotFoundError:
+        return INITIAL.splitlines(keepends=True)
+
+
+def task_rows(lines: list[str]) -> dict[str, list[dict[str, object]]]:
+    rows: dict[str, list[dict[str, object]]] = {key: [] for key in PRIORITIES}
+    revision = hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+    priority = ""
+    for number, raw in enumerate(lines, 1):
+        line = raw.rstrip("\r\n")
+        heading = HEADING.fullmatch(line)
+        if heading:
+            priority = heading.group(1)
+            continue
+        if line.startswith("## "):
+            priority = ""
+            continue
+        task = TASK.fullmatch(line)
+        if task and priority:
+            description = ""
+            if number < len(lines):
+                detail = DESCRIPTION.fullmatch(lines[number].rstrip("\r\n"))
+                if detail:
+                    description = detail.group(1)
+            rows[priority].append(
+                {
+                    "line": number,
+                    "revision": revision,
+                    "etag": hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16],
+                    "text": task.group(2),
+                    "description": description,
+                    "done": task.group(1).lower() == "x",
+                }
+            )
+    return rows
+
+
+def snapshot(path: Path) -> bytes | None:
+    if path.is_symlink():
+        raise ValueError("Refusing a symlink task file")
+    try:
+        if not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError("Task file must be a regular file")
+        return path.read_bytes()
+    except FileNotFoundError:
+        return None
+
+
+def write_atomic(path: Path, lines: list[str], expected: bytes | None = None,
+                 check_snapshot: bool = False) -> None:
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    before = snapshot(path)
+    mode = stat.S_IMODE(path.stat().st_mode) if before is not None else 0o600
+    descriptor, temporary = tempfile.mkstemp(prefix=".todo-", dir=path.parent)
+    try:
+        os.fchmod(descriptor, mode)
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as handle:
+            handle.writelines(lines)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if check_snapshot and snapshot(path) != expected:
+            raise ValueError("File changed during edit; refresh and try again")
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def insert_task(lines: list[str], priority: str, text: str, description: str = "") -> None:
+    heading_index = next(
+        (index for index, line in enumerate(lines) if HEADING.fullmatch(line.rstrip("\r\n")) and line.strip() == f"## {priority}"),
+        None,
+    )
+    if heading_index is None:
+        if lines and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+        if lines and lines[-1].strip():
+            lines.append("\n")
+        lines.extend([f"## {priority}\n", "\n"])
+        heading_index = len(lines) - 2
+    elif not lines[heading_index].endswith("\n"):
+        lines[heading_index] += "\n"
+    next_heading = next(
+        (index for index in range(heading_index + 1, len(lines)) if lines[index].startswith("## ")),
+        len(lines),
+    )
+    insert_at = next_heading
+    while insert_at > heading_index + 1 and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    if insert_at > 0 and not lines[insert_at - 1].endswith("\n"):
+        lines[insert_at - 1] += "\n"
+    lines.insert(insert_at, f"- [ ] {text}\n")
+    if description:
+        lines.insert(insert_at + 1, f"  description: {description}\n")
+
+
+def mutate(path: Path, args: argparse.Namespace) -> None:
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lock = path.with_name(path.name + ".lock")
+    descriptor = os.open(lock, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "a+b") as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        original = snapshot(path)
+        lines = (original.decode("utf-8") if original is not None else INITIAL).splitlines(keepends=True)
+        if args.action == "add":
+            text = " ".join(args.text.split())
+            if not text:
+                raise ValueError("Task text must not be empty")
+            description = " ".join(args.description.split())
+            if not description:
+                raise ValueError("A description is required")
+            if len(text) > 35:
+                raise ValueError("Use a title of at most 35 characters; put details in the description")
+            insert_task(lines, args.priority, text, description)
+        elif args.action == "toggle":
+            if args.revision and args.revision != hashlib.sha256("".join(lines).encode("utf-8")).hexdigest():
+                raise ValueError("File changed; refresh and check the current task")
+            index = args.line - 1
+            if index < 0 or index >= len(lines):
+                raise ValueError("Task changed; refresh and try again")
+            raw = lines[index]
+            etag = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+            if etag != args.etag or not TASK.fullmatch(raw.rstrip("\r\n")):
+                raise ValueError("Task changed; refresh and try again")
+            marker = "x" if raw[3] == " " else " "
+            lines[index] = raw[:3] + marker + raw[4:]
+        elif args.action == "init" and original is not None:
+            return
+        write_atomic(path, lines, original, check_snapshot=True)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--file", type=Path, default=default_path())
+    sub = parser.add_subparsers(dest="action", required=True)
+    sub.add_parser("list")
+    sub.add_parser("init")
+    edit = sub.add_parser("edit")
+    edit.add_argument("--editor", default="")
+    add = sub.add_parser("add")
+    add.add_argument("priority", choices=PRIORITIES)
+    add.add_argument("text")
+    add.add_argument("--description", required=True, help="Required context shown on hover")
+    toggle = sub.add_parser("toggle")
+    toggle.add_argument("line", type=int)
+    toggle.add_argument("etag")
+    toggle.add_argument("--revision", help="File revision returned by list; recommended for agents")
+    args = parser.parse_args()
+    args.file = args.file.expanduser().absolute()
+
+    try:
+        if args.action == "edit":
+            command = args.editor or os.environ.get("OMARCHY_TODO_EDITOR", "") or os.environ.get("VISUAL", "") or os.environ.get("EDITOR", "")
+            argv = shlex.split(command) if command else ["omawrite" if shutil.which("omawrite") else "xdg-open"]
+            if not argv:
+                raise ValueError("Editor command is empty")
+            args.action = "init"
+            mutate(args.file, args)
+            return subprocess.call(argv + [str(args.file)])
+        if args.action == "list":
+            snapshot(args.file)
+            print(json.dumps(task_rows(read_lines(args.file)), ensure_ascii=False))
+        else:
+            mutate(args.file, args)
+    except (OSError, ValueError) as exc:
+        print(f"omarchy-todo: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
