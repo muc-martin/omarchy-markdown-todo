@@ -23,9 +23,6 @@ The helper does not execute commands through a shell.
 
 ## Installation
 
-The code is public. Marketplace submission and isolated UI verification are
-still pending. Review the source before installation.
-
 To install from this repository's URL, copy its HTTPS clone URL from GitHub's
 **Code** menu and pass it to `omarchy plugin add`. If you already cloned this
 repository, run this command from its root:
@@ -49,10 +46,8 @@ existing installation, compare local changes and back up its checkout and
 `omarchy plugin remove todo.md` only when you intend to replace it.
 Keep task data outside the plugin checkout.
 
-Version 1.1.2 changes the distribution ID to `todo.md`. If you installed
-an earlier candidate, use `omarchy plugin list` to identify and disable the
-previous entry before enabling this plugin. Both versions use the same default
-data path; no task migration is needed. Do not enable both against the same file.
+If another version of this widget is enabled, disable it before enabling this
+plugin. Do not enable two versions against the same task file.
 
 ## File path and editor
 
@@ -148,12 +143,8 @@ omarchy plugin validate .
 ```
 
 Tests use temporary synthetic tasks. `examples/demo.md` contains open and
-completed examples; `examples/empty.md` is an empty template. Live task data is
-never read or copied for tests or package export. See `VERIFICATION.md` for
-results and the remaining UI checks.
+completed examples; `examples/empty.md` is an empty template.
 
-## License and publication
+## License
 
-MIT; see `LICENSE` and `THIRD_PARTY_NOTICES.md`. Marketplace submission needs
-separate owner approval. This repository is not yet a Marketplace listing.
-`PUBLISHING.md` records the submission process and remaining steps.
+MIT; see `LICENSE` and `THIRD_PARTY_NOTICES.md`.
