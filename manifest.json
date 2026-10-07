@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "markdown.todo",
-  "name": "To-do",
-  "version": "1.1.1",
-  "author": "Markdown To-do contributors",
+  "id": "todo.md",
+  "name": "todo.md",
+  "version": "1.1.2",
+  "author": "todo.md contributors",
   "description": "A small Markdown-backed priority list",
   "kinds": [
     "bar-widget"
@@ -12,7 +12,7 @@
     "barWidget": "TodoWidget.qml"
   },
   "barWidget": {
-    "displayName": "To-do",
+    "displayName": "todo.md",
     "description": "P0, P1, and P2 tasks",
     "category": "Productivity",
     "allowMultiple": false,

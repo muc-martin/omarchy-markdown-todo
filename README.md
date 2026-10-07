@@ -1,4 +1,4 @@
-# Markdown To-do for Omarchy
+# todo.md for Omarchy
 
 A compact bar panel with P0, P1 and P2 priorities. Markdown is the data source.
 Completed tasks stay in the file and disappear from the panel. Titles occupy
@@ -37,7 +37,7 @@ omarchy plugin add "$(git remote get-url origin)" --enable
 The official installer clones and validates the plugin without running install
 hooks. The panel calls its bundled helper through Python, so it does not depend
 on another `omarchy-todo` installation. Sources are installed under
-`~/.config/omarchy/plugins/markdown.todo/`.
+`~/.config/omarchy/plugins/todo.md/`.
 
 Tasks default to `${XDG_DATA_HOME:-$HOME/.local/share}/omarchy/todo.md`.
 `list` does not create a data file. The first write creates it with mode 0600.
@@ -46,10 +46,10 @@ Initialization preserves an existing file and never replaces it with an example.
 Installation is refused if the plugin ID is already in use. Before replacing an
 existing installation, compare local changes and back up its checkout and
 `shell.json` on the native Linux filesystem. Remove the old plugin with
-`omarchy plugin remove markdown.todo` only when you intend to replace it.
+`omarchy plugin remove todo.md` only when you intend to replace it.
 Keep task data outside the plugin checkout.
 
-Version 1.1.1 changes the distribution ID to `markdown.todo`. If you installed
+Version 1.1.2 changes the distribution ID to `todo.md`. If you installed
 an earlier candidate, use `omarchy plugin list` to identify and disable the
 previous entry before enabling this plugin. Both versions use the same default
 data path; no task migration is needed. Do not enable both against the same file.
@@ -59,7 +59,7 @@ data path; no task migration is needed. Do not enable both against the same file
 Set options directly on the bar entry in `~/.config/omarchy/shell.json`:
 
 ```json
-{"id": "markdown.todo", "file": "/absolute/path/tasks.md", "editor": "omawrite"}
+{"id": "todo.md", "file": "/absolute/path/tasks.md", "editor": "omawrite"}
 ```
 
 Empty values use defaults. The panel's `file` setting overrides
@@ -79,7 +79,7 @@ settings reload automatically.
 Call the bundled helper directly:
 
 ```sh
-TODO_PLUGIN="$HOME/.config/omarchy/plugins/markdown.todo"
+TODO_PLUGIN="$HOME/.config/omarchy/plugins/todo.md"
 python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md list
 python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md add P1 "Update the guide" --description "Explain editor selection with an example."
 python3 "$TODO_PLUGIN/omarchy-todo" --file /absolute/path/tasks.md toggle LINE ETAG --revision REVISION
@@ -124,13 +124,13 @@ Stale panel actions are rejected using the file revision.
 
 ## Updates, removal and rollback
 
-Update a Git-managed installation with `omarchy plugin update markdown.todo`.
+Update a Git-managed installation with `omarchy plugin update todo.md`.
 First back up the plugin checkout and `shell.json` on the native filesystem and
 inspect local changes. The official updater shows a diff and refuses updates
 when local modifications prevent them. File and editor settings remain on the
 bar entry; the bundled helper updates with the plugin.
 
-Remove the plugin with `omarchy plugin remove markdown.todo`. Remove an optional
+Remove the plugin with `omarchy plugin remove todo.md`. Remove an optional
 standalone CLI or agent skill separately, or restore their previous versions.
 **Never delete the Markdown file or its tasks during rollback.**
 

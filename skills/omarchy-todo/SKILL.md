@@ -6,7 +6,7 @@ description: Manage an Omarchy Markdown To-do list when the user asks to list, a
 # Omarchy To-do
 
 Use only when the user asks to manage tasks. Never publish or commit live data.
-Find the plugin checkout under `~/.config/omarchy/plugins/markdown.todo` and invoke
+Find the plugin checkout under `~/.config/omarchy/plugins/todo.md` and invoke
 its bundled helper with Python 3. Do not assume that `omarchy-todo` on PATH is
 this version. Confirm the intended data path from the widget's `file` setting,
 `OMARCHY_TODO_FILE`, or the default `${XDG_DATA_HOME:-~/.local/share}/omarchy/todo.md`.

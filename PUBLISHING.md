@@ -15,7 +15,7 @@ the root. Its new Git history contains only the reviewed package files.
 Personal setup history and live tasks were not imported. There are no install
 hooks.
 
-Listing metadata: name `To-do`, plugin ID `markdown.todo`, category
+Listing metadata: name `todo.md`, plugin ID `todo.md`, category
 `Productivity`, tags `bar, quickshell`. ID availability must be checked before
 submission. Retired IDs can remain unavailable; the Marketplace makes the final
 decision. Changes to the ID require corresponding updates to the manifest,

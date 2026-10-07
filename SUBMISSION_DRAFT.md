@@ -1,6 +1,6 @@
 # Submission draft — do not submit
 
-Title: `[Plugin]: To-do`
+Title: `[Plugin]: todo.md`
 
 Obtain owner confirmation for every statement before submission.
 Unchecked boxes do not represent confirmation.

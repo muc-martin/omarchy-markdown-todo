@@ -7,8 +7,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "markdown.todo"
-  ipcTarget: "markdown.todo"
+  moduleName: "todo.md"
+  ipcTarget: "todo.md"
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
@@ -62,7 +62,7 @@ Panel {
   }
 
   IpcHandler {
-    target: "markdown.todo.editor"
+    target: "todo.md.editor"
     function open(): void { root.editTasks() }
   }
 
@@ -169,7 +169,7 @@ Panel {
     anchors.fill: parent
     bar: root.bar
     text: "\uf0ae"
-    tooltipText: "To-do · right-click to edit"
+    tooltipText: "todo.md · right-click to edit"
     onPressed: function(mouseButton) {
       if (mouseButton === Qt.RightButton) {
         root.editTasks()
